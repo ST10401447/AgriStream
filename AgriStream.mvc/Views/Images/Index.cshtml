@@ -1,0 +1,47 @@
+﻿@model ImagesViewModel
+@{
+    ViewData["Title"] = "Drone Images";
+}
+
+<h2>Drone Images</h2>
+
+<form asp-action="Upload" method="post" enctype="multipart/form-data" class="row g-2 mb-4">
+    <div class="col-auto">
+        <input type="file" name="imageFile" accept="image/*" class="form-control" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-success">Upload image</button>
+    </div>
+</form>
+
+<div class="row mb-4">
+    @foreach (var img in Model.Images)
+    {
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <img src="@img.Url" class="card-img-top drone-img" alt="@img.Name" />
+                <div class="card-body">
+                    <small>@img.Name<br />@img.SizeKb KB</small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<h4>Processing log (written by the Blob-triggered function)</h4>
+<table class="table table-striped">
+    <thead>
+        <tr><th>File</th><th>Size (KB)</th><th>Status</th><th>Processed at (UTC)</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model.Logs)
+        {
+            <tr>
+                <td>@log.FileName</td>
+                <td>@log.FileSizeKb</td>
+                <td>@log.Status</td>
+                <td>@log.ProcessedAt</td>
+            </tr>
+        }
+    </tbody>
+</table>

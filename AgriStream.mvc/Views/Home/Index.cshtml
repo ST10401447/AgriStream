@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="p-5 mb-4 bg-white border rounded">
+    <h1>AgriStream IoT</h1>
+    <p class="lead">Smart monitoring for large commercial farms. Upload drone images, view soil sensor data and start irrigation.</p>
+
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <a class="btn btn-success" asp-controller="Dashboard" asp-action="Index">Go to dashboard</a>
+    }
+    else
+    {
+        <a class="btn btn-success" asp-controller="Account" asp-action="Login">Login</a>
+        <a class="btn btn-outline-success" asp-controller="Account" asp-action="Register">Register</a>
+    }
+</div>

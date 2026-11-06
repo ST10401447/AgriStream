@@ -1,0 +1,22 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+body {
+    background-color: #f5f8f2;
+}
+
+.drone-img {
+    height: 180px;
+    object-fit: cover;
+}
+
+.reading-box {
+    font-size: 1.4rem;
+}

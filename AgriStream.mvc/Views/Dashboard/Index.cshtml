@@ -1,0 +1,110 @@
+﻿@model DashboardViewModel
+@{
+    ViewData["Title"] = "Field Dashboard";
+    var latest = Model.Readings.FirstOrDefault();
+}
+
+<h2>Field Dashboard</h2>
+
+@if (Model.ErrorMessage != "")
+{
+    <div class="alert alert-warning">@Model.ErrorMessage</div>
+}
+
+<form method="get" asp-action="Index" class="row g-2 mb-4">
+    <div class="col-auto">
+        <select name="deviceCode" class="form-select">
+            @foreach (var d in Model.Devices)
+            {
+                <option value="@d.DeviceCode" selected="@(d.DeviceCode == Model.SelectedDeviceCode)">@d.DeviceCode - @d.FieldName</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-success">View field</button>
+    </div>
+</form>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">Latest telemetry for @Model.SelectedDeviceCode</div>
+            <div class="card-body">
+                @if (latest == null)
+                {
+                    <p>No readings yet. Click "Add sensor reading" to simulate one.</p>
+                }
+                else
+                {
+                    <div class="row text-center reading-box">
+                        <div class="col">Soil moisture<br /><strong>@latest.SoilMoisture %</strong></div>
+                        <div class="col">Temperature<br /><strong>@latest.Temperature C</strong></div>
+                        <div class="col">Humidity<br /><strong>@latest.Humidity %</strong></div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Actions</div>
+            <div class="card-body">
+                <form asp-action="AddReading" method="post" class="mb-3">
+                    <input type="hidden" name="deviceCode" value="@Model.SelectedDeviceCode" />
+                    <button type="submit" class="btn btn-outline-success w-100">Add sensor reading</button>
+                </form>
+
+                @if (User.IsInRole("Farmer") || User.IsInRole("Admin"))
+                {
+                    <form asp-action="TriggerIrrigation" method="post">
+                        <input type="hidden" name="deviceCode" value="@Model.SelectedDeviceCode" />
+                        <label class="form-label">Minutes</label>
+                        <input type="number" name="minutes" value="10" min="1" max="120" class="form-control mb-2" />
+                        <button type="submit" class="btn btn-success w-100">Trigger Irrigation</button>
+                    </form>
+                }
+                else
+                {
+                    <p class="text-muted">Only Farmers and Admins can trigger irrigation.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4>Recent readings</h4>
+<table class="table table-striped">
+    <thead>
+        <tr><th>Time (UTC)</th><th>Soil moisture %</th><th>Temperature C</th><th>Humidity %</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model.Readings)
+        {
+            <tr>
+                <td>@(r.RecordedAt.HasValue? r.RecordedAt.Value.UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss") : "")</td>
+                <td>@r.SoilMoisture</td>
+                <td>@r.Temperature</td>
+                <td>@r.Humidity</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4 class="mt-4">Device status (Azure SQL registry)</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr><th>Device</th><th>Field</th><th>Status</th><th>Last updated (UTC)</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var d in Model.Devices)
+        {
+            <tr>
+                <td>@d.DeviceCode</td>
+                <td>@d.FieldName</td>
+                <td>@d.Status</td>
+                <td>@d.LastUpdated.ToString("yyyy-MM-dd HH:mm:ss")</td>
+            </tr>
+        }
+    </tbody>
+</table>
